@@ -1,0 +1,37 @@
+services:
+  korean-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # 设为 true 会额外安装离线翻译引擎（镜像变大）；语言包仍需按 README 单独安装
+        INSTALL_ARGOS: "false"
+    image: zh-ko-translate-tts:1.0.0
+    container_name: zh-ko-translate-tts
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8000}:8000"
+    environment:
+      APP_HOST: 0.0.0.0
+      APP_PORT: 8000
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      CORS_ORIGINS: ${CORS_ORIGINS:-*}
+      TRANSLATE_CHAIN: ${TRANSLATE_CHAIN:-argos,libre,free}
+      TTS_PROVIDER: ${TTS_PROVIDER:-edge}
+      DEFAULT_VOICE: ${DEFAULT_VOICE:-ko-KR-SunHiNeural}
+      RATE_MIN: ${RATE_MIN:-0.5}
+      RATE_MAX: ${RATE_MAX:-1.5}
+      CACHE_ENABLED: ${CACHE_ENABLED:-true}
+      REQUEST_TIMEOUT: ${REQUEST_TIMEOUT:-20}
+      LIBRETRANSLATE_URL: ${LIBRETRANSLATE_URL:-https://libretranslate.com/translate}
+      LIBRETRANSLATE_API_KEY: ${LIBRETRANSLATE_API_KEY:-}
+      MYMEMORY_EMAIL: ${MYMEMORY_EMAIL:-}
+    # 如需持久化离线语言包，取消下面注释并先按 README 生成 ./argos-packages
+    # volumes:
+    #   - ./argos-packages:/root/.local/share/argos-translate/packages
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=5)"]
+      interval: 30s
+      timeout: 8s
+      start_period: 20s
+      retries: 3

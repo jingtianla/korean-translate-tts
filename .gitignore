@@ -1,0 +1,46 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# 前端
+node_modules/
+web/dist/
+.vite/
+npm-debug.log*
+
+# 本地运行产物
+.env
+*.log
+.server.out.log
+.server.err.log
+server/scripts/smoke_result.json
+.cache/
+
+# 浏览器端到端验证产物（只忽略快照目录，不忽略 CI / 编排 yml）
+.playwright-cli/
+
+# 第三方克隆仓库：含嵌套 .git 与提交的 node_modules，不纳入本仓库
+# 保留 vendor/README.md 与 vendor/references/
+vendor/*/
+!vendor/references/
+
+# 模型与语言包（体积大，不入库；部署时通过 setup_argos.py 单独下载）
+*.argosmodel
+argos-packages/
+*.onnx
+*.pth
+
+# 部署时生成的本地状态文件
+deploy/.previous_image_ref
+deploy/.env.deploy
+
+# 编辑器 / IDE 数据（项目相关但不应纳入版本控制）
+.vscode/
+.idea/
+.codebuddy/
+.DS_Store
+Thumbs.db

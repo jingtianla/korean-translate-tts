@@ -1,0 +1,8 @@
+# 可选引擎：离线翻译 + 服务端神经语音
+# 建议在 Python 3.10 / 3.11 下安装（Docker 镜像已固定 3.11）。
+# Python 3.13 上 ctranslate2 可能暂无预编译 wheel，可跳过，服务仍可用在线翻译 provider。
+argostranslate==1.11.1
+edge-tts==7.3.1
+
+# 离线 TTS 备选（默认关闭，依赖 unidic / nltk / MeCab 字典与数百 MB 权重，按需安装）
+# melotts @ git+https://github.com/myshell-ai/MeloTTS.git

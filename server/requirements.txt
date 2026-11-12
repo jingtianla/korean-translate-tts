@@ -1,0 +1,9 @@
+# 核心依赖：仅这些即可启动服务（翻译走可选在线 provider，发音由浏览器 Web Speech 兜底）
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+pydantic==2.10.4
+httpx==0.28.1
+
+# 可选引擎见 requirements-optional.txt
+#   pip install -r server/requirements-optional.txt
+# 未安装时对应 provider 自动标记为 unavailable 并沿降级链切换，服务不会启动失败。
