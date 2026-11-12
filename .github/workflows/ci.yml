@@ -1,0 +1,106 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend-checks:
+    name: Backend checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: server/requirements.txt
+
+      - name: Install backend dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r server/requirements.txt
+
+      - name: Compile check
+        run: python -m compileall -q server/app
+
+      - name: Import check
+        run: PYTHONPATH=server python -c "from app.main import app; assert app.title"
+
+      - name: Start API and run smoke test
+        run: |
+          PYTHONPATH=server python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --app-dir server > /tmp/uvicorn.log 2>&1 &
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8000/api/health > /dev/null; then break; fi
+            sleep 1
+          done
+          python server/scripts/smoke_test.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          data = json.loads(Path("server/scripts/smoke_result.json").read_text(encoding="utf-8"))
+          for key in ("health", "voices"):
+              assert data[key]["status"] == 200, f"{key}: {data[key]}"
+          assert data["health"]["body"]["version"]
+          print("smoke assertions passed:", {k: data[k]["status"] for k in data})
+          PY
+
+      - name: Upload smoke result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-result
+          path: server/scripts/smoke_result.json
+          if-no-files-found: ignore
+
+  frontend-checks:
+    name: Frontend checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: web
+        run: npm ci --no-audit --no-fund
+
+      - name: Type check
+        working-directory: web
+        run: npx tsc --noEmit
+
+      - name: Production build
+        working-directory: web
+        run: npm run build
+
+      - name: Verify build output
+        run: test -f web/dist/index.html
+
+  secret-scan:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Scan tracked files for credentials
+        run: python scripts/ci/secret_scan.py
