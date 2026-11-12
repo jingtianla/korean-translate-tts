@@ -10,7 +10,7 @@
 | --- | --- | --- |
 | 项目名称 | 中文译韩文（中→韩 翻译发音台） | 需求给定 |
 | 技术栈（必填） | React 18 + TypeScript 5 + Vite 5 + Tailwind CSS 3.4；Python 3.11 + FastAPI + Uvicorn；GitHub Actions；Docker / Docker Compose；GHCR | 由现有工程真实确定 |
-| 仓库完整网址 | `https://github.com/jingtianla/korean-translate-tts`（private） | GitHub API `POST /user/repos` → 201 |
+| 仓库完整网址 | `https://github.com/jingtianla/korean-translate-tts`（**public**，经用户明确授权由 private 变更） | API `POST /user/repos` 201 + `PATCH` 200 + `GET` 复核 `visibility=public` |
 | 仓库克隆地址 | `https://github.com/jingtianla/korean-translate-tts.git`（已配置为 `origin`） | API 返回 + `git remote -v` |
 | 本地工作目录 | `d:/AI/11.韩语20261111` | 真实路径 |
 | 默认分支 | `main`（`git init -b main` 已建立） | 决策 + 真实命令 |
@@ -77,7 +77,7 @@
 | G1 推送确认 | **每一次 `git push` 之前** | 明确回复「确认推送 `<分支名>` `<提交哈希>`」——**当前仍未满足** |
 | G2 仓库与登录 | ~~创建远端、gh 登录、权限~~ | **已解除**：仓库已创建、API 认证已验证 |
 | G3 必需审核 | PR 需真实审核者批准 | 由审核者在 PR 页面点击批准 |
-| G3b 分支保护授权不足 | 私有仓库规则集返回 403 | **受阻**：需 GitHub Pro 或改为 public；改公开会改变代码可见性，须你决策 |
+| G3b 分支保护授权不足 | ~~私有仓库规则集 403~~ | **已解除**：用户授权改 public 后规则集创建成功（201 / `id=27114339`），见第 4c 节 |
 | G4 业务验收 | A10 | 验收人给出明确通过结论 |
 | G5 授权不足 | ~~SSH 认证~~ / 部署 Secret | SSH **已解除**；`DEPLOY_SSH_KEY` 等仍待配置，不提供明文值 |
 | G6 需求不清 | 测试环境网址、服务器项目目录确认 | 提供真实值 |
@@ -99,15 +99,24 @@
 > 注意：仓库 `default_workflow_permissions=read`，但 `release.yml` 已显式声明
 > `permissions: packages: write`，可覆盖该默认值；真实效果须由 CI 运行验证，不预先宣称成功。
 
+## 4c. 仓库公开化与分支保护（用户明确授权后执行）
+
+| 动作 | 命令 / API | 真实结果 |
+| --- | --- | --- |
+| 改为 public | `PATCH /repos/jingtianla/korean-translate-tts` | **200**；`GET` 复核 `private=False`、`visibility=public` |
+| 首次创建规则集 | `POST /rulesets`（简版 pull_request 参数） | **422** `Invalid property /rules/2: data matches no possible input` |
+| 补齐必填参数后创建 | `POST /rulesets` | **201**，`id=27114339`，`enforcement=active` |
+| 加入必需检查 | `PUT /rulesets/27114339` | **200** |
+| 读取规则内容复核 | `GET /rulesets/27114339` | 目标 `~DEFAULT_BRANCH`；规则 `deletion`、`non_fast_forward`、`pull_request`(1 approval)、`required_status_checks` = `Backend checks` / `Frontend checks` / `Secret scan` |
+
+> 422 的原因是 `pull_request` 规则缺少 API 要求的必填参数，已通过补齐
+> `require_last_push_approval`、`required_review_thread_resolution` 等字段修复并复测通过，
+> **不是**通过关闭检查或放宽规则绕过。
+
 ## 5. 待人工操作的页面与按钮（不含任何凭据值）
 
 1. ~~创建仓库 / 登录 / 配置远端~~ —— **本轮已真实完成**，见第 4b 节。
-2. **分支保护（G3b，受阻）**：私有仓库免费版不支持规则集。二选一：
-   - 升级 GitHub Pro 后由我重新调用 API 配置；或
-   - 仓库 → **Settings** → **General** → 最底部 **Danger Zone** → **Change visibility**
-     → 选 **Make public**（**注意：代码将公开，属需你确认的变更**），之后由我重新配置规则集。
-   配置目标：`main`，1 approval、必需检查 `Backend checks` / `Frontend checks` / `Secret scan`、
-   禁止 force push 与删除。
+2. ~~分支保护（G3b）~~ —— **本轮已真实完成**，见第 4c 节。
 3. **推送确认（G1，当前唯一硬闸门）**：明确回复
    「确认推送 `feat/20261112-001-delivery-pipeline` `<提交哈希>`」。
 4. **部署凭据**：仓库 → **Settings** → **Secrets and variables** → **Actions** →
