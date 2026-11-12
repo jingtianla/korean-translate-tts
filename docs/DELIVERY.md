@@ -10,26 +10,26 @@
 | --- | --- | --- |
 | 项目名称 | 中文译韩文（中→韩 翻译发音台） | 需求给定 |
 | 技术栈（必填） | React 18 + TypeScript 5 + Vite 5 + Tailwind CSS 3.4；Python 3.11 + FastAPI + Uvicorn；GitHub Actions；Docker / Docker Compose；GHCR | 由现有工程真实确定 |
-| 仓库完整网址 | **待人工**：`https://github.com/` 仅为主域名，不是完整仓库地址 | 预检：无远端 |
-| 仓库克隆地址 | **待人工**：`<owner>/<repo>` 未给出，无法拼出地址 | 预检：`git remote -v` 为空 |
+| 仓库完整网址 | `https://github.com/jingtianla/korean-translate-tts`（private） | GitHub API `POST /user/repos` → 201 |
+| 仓库克隆地址 | `https://github.com/jingtianla/korean-translate-tts.git`（已配置为 `origin`） | API 返回 + `git remote -v` |
 | 本地工作目录 | `d:/AI/11.韩语20261111` | 真实路径 |
 | 默认分支 | `main`（`git init -b main` 已建立） | 决策 + 真实命令 |
 | 本次改动内容与范围 | 仅交付链路配置：CI 工作流、发布镜像工作流、按 Digest 部署/回滚/健康检查脚本、密钥扫描、交付文档；**不改业务代码** | 决策 |
 | 验收标准 | 见本文第 3 节 | 决策 |
 | CI 工作流名称或入口 | `CI` → `.github/workflows/ci.yml`；`Release image` → `.github/workflows/release.yml` | 本次新建 |
-| 镜像仓库完整地址 | `ghcr.io/<owner>/<repo>`（`<owner>/<repo>` 待人工；工作流内用 `github.repository` 自动解析，不硬编码） | 决策 |
+| 镜像仓库完整地址 | `ghcr.io/jingtianla/korean-translate-tts`（工作流内用 `github.repository` 自动解析，不硬编码） | 仓库已创建的真实推导 |
 | 镜像名称 | `zh-ko-translate-tts`（GHCR 沿用仓库名） | 决策 |
 | 镜像标签规则 | `sha-<完整 Commit SHA>` + `main`；正式候选仅在合并到 `main` 后构建；环境间一律按 `@sha256:<digest>` 引用 | 决策 |
 | 测试环境完整网址 | **待人工**：未提供；预检 `http://120.26.33.211:8000/api/health` 返回 502，不能认定为测试环境 | 真实探测 |
 | 测试环境部署方式 | `deploy/docker-compose.prod.yml` + `deploy/deploy.sh <image@sha256:...>` | 决策 |
 | 测试命令或入口 | `python server/scripts/smoke_test.py`；`npx tsc --noEmit`；`npm run build`；`python -m compileall -q server/app`；`python scripts/ci/secret_scan.py`；`deploy/healthcheck.sh` | 真实可执行 |
-| 服务器连接方式 | SSH（TCP 22 可达）；**认证受阻**：`Permission denied (publickey,password)` | 真实探测 |
+| 服务器连接方式 | SSH 别名 `aliyun-korean` → `root@120.26.33.211`，使用已配置的 `IdentityFile`；**认证已通过**：`ssh -o BatchMode=yes aliyun-korean` 返回 `SSH_OK / root / /root / Linux`，退出码 0 | 真实探测 |
 | 服务器入口 | `120.26.33.211` | 需求给定 |
-| 服务器项目目录 | `/opt/zh-ko-translate-tts`（待人工确认） | 决策，未验证 |
+| 服务器项目目录 | `/opt/zh-ko-translate-tts`（预检确认**尚不存在**；服务器 Linux / Docker 29.9.3 / Compose v5.7.0 / 8000 端口空闲） | 真实只读预检 |
 | 服务器部署方式或编排文件 | `deploy/docker-compose.prod.yml`，由 `deploy/deploy.sh` 按 Digest 拉取部署 | 决策 |
 | 健康检查入口与通过条件 | `GET /api/health` 返回 200 且 `status ∈ {ok, degraded}` 且 `version` 非空；`GET /` 返回 200 | 决策 + 真实接口 |
 | 回滚方式 | `deploy/rollback.sh` 切回 `.previous_image_ref` 中上一个已验证 Digest 并复跑健康检查；无历史 Digest 时**停止并交人工决策** | 决策 |
-| 已配置凭据的安全引用 | **当前无任何已配置凭据**。规划引用名（仅名称，无值）：`secrets.GITHUB_TOKEN`（GHCR 登录，内置）、`secrets.DEPLOY_SSH_KEY`、`secrets.DEPLOY_HOST`、`secrets.DEPLOY_USER`、`secrets.DEPLOY_PATH` | 真实预检 |
+| 已配置凭据的安全引用 | **已验证可用**：本机 Git 凭据助手中的 `git:https://github.com`（API 验证 `AUTH_LOGIN=jingtianla`、`RATE_LIMIT=5000`）；SSH 别名 `aliyun-korean` 的 `IdentityFile`；CI 内置 `secrets.GITHUB_TOKEN`。**未配置**：`secrets.DEPLOY_SSH_KEY` 等部署 Secret。所有值均未读取、未输出、未入库 | 真实 API + SSH 验证 |
 
 ## 2. 团队工作方式（未指定项由本次决策补齐）
 
@@ -74,27 +74,44 @@
 | 闸门 | 触发条件 | 需要的人工动作 |
 | --- | --- | --- |
 | G1 推送确认 | **每一次 `git push` 之前** | 明确回复「确认推送 `<分支名>` `<提交哈希>`」 |
-| G2 仓库与登录 | 创建远端、gh 登录、权限 | 见第 5 节页面与按钮 |
+| G1 推送确认 | **每一次 `git push` 之前** | 明确回复「确认推送 `<分支名>` `<提交哈希>`」——**当前仍未满足** |
+| G2 仓库与登录 | ~~创建远端、gh 登录、权限~~ | **已解除**：仓库已创建、API 认证已验证 |
 | G3 必需审核 | PR 需真实审核者批准 | 由审核者在 PR 页面点击批准 |
+| G3b 分支保护授权不足 | 私有仓库规则集返回 403 | **受阻**：需 GitHub Pro 或改为 public；改公开会改变代码可见性，须你决策 |
 | G4 业务验收 | A10 | 验收人给出明确通过结论 |
-| G5 授权不足 | SSH / 镜像仓库 / 测试环境凭据 | 配置 Secret 或授权，不提供明文值 |
-| G6 需求不清 | 仓库地址、测试环境网址、服务器目录 | 提供真实值 |
+| G5 授权不足 | ~~SSH 认证~~ / 部署 Secret | SSH **已解除**；`DEPLOY_SSH_KEY` 等仍待配置，不提供明文值 |
+| G6 需求不清 | 测试环境网址、服务器项目目录确认 | 提供真实值 |
 | G7 不可逆操作 | 删除数据、强制推送、覆盖他人分支 | 默认不执行，单独说明 |
+
+## 4b. 本轮真实配置结果（2026-11-12）
+
+| 动作 | 命令 / API | 真实结果 |
+| --- | --- | --- |
+| 查询已有仓库 | `GET /user/repos` | 3 个：`cloud-api2-knowledge-20261026`、`korean-master`、`xiaoxue-zongying-notes` |
+| 检查重名 | `GET /repos/jingtianla/korean-translate-tts` | 404 → 无冲突 |
+| 创建仓库 | `POST /user/repos` | **201**，`id=1455201362`，private，`default_branch=main`，`auto_init=false` |
+| 配置远端 | `git remote add origin ...` | 成功；`git ls-remote --heads origin` 返回空 → **远端仍为空仓库，未推送** |
+| Actions 权限 | `GET /actions/permissions` | `enabled=True`、`allowed_actions=all`、`default_workflow_permissions=read` |
+| 分支保护规则集 | `POST /rulesets` | **403** `Upgrade to GitHub Pro or make this repository public` |
+| 经典分支保护 | `GET /branches/main/protection` | **403** 同上；且空仓库尚无 `main` 引用 |
+| 服务器只读预检 | `ssh aliyun-korean` | Linux / Docker 29.9.3 / Compose v5.7.0 / 8000 空闲 / 目标目录不存在 |
+
+> 注意：仓库 `default_workflow_permissions=read`，但 `release.yml` 已显式声明
+> `permissions: packages: write`，可覆盖该默认值；真实效果须由 CI 运行验证，不预先宣称成功。
 
 ## 5. 待人工操作的页面与按钮（不含任何凭据值）
 
-1. **创建仓库**：打开 `https://github.com/new` → 填 Repository name → 选 Private/Public →
-   点 **Create repository**。把生成的完整 URL 提供给我。
-2. **本地登录**：安装 GitHub CLI（<https://cli.github.com/>）后执行 `gh auth login` →
-   选 GitHub.com → HTTPS → Login with a web browser，按提示在浏览器完成授权。
-3. **配置远端**：拿到完整仓库 URL 后，由我执行 `git remote add origin <完整地址>`。
-4. **分支保护**：仓库 → **Settings** → **Branches** → **Add branch ruleset**（或 Classic protection）
-   → 目标 `main` → 勾选 *Require a pull request before merging*（至少 1 approval）、
-   *Require status checks to pass* 并添加 `Backend checks` / `Frontend checks` / `Secret scan`、
-   *Require branches to be up to date*、*Do not allow bypassing* → **Create / Save changes**。
-5. **部署凭据**：仓库 → **Settings** → **Secrets and variables** → **Actions** →
-   **New repository secret**，按第 1 节列出的引用名逐项创建（`DEPLOY_SSH_KEY` 等），
-   值在网页中填写，**不要发到聊天里**。
-6. **测试环境**：提供完整测试环境 URL；若为 `120.26.33.211`，需先解决 8000 端口 502
-   并提供可用的 SSH 公钥认证。
+1. ~~创建仓库 / 登录 / 配置远端~~ —— **本轮已真实完成**，见第 4b 节。
+2. **分支保护（G3b，受阻）**：私有仓库免费版不支持规则集。二选一：
+   - 升级 GitHub Pro 后由我重新调用 API 配置；或
+   - 仓库 → **Settings** → **General** → 最底部 **Danger Zone** → **Change visibility**
+     → 选 **Make public**（**注意：代码将公开，属需你确认的变更**），之后由我重新配置规则集。
+   配置目标：`main`，1 approval、必需检查 `Backend checks` / `Frontend checks` / `Secret scan`、
+   禁止 force push 与删除。
+3. **推送确认（G1，当前唯一硬闸门）**：明确回复
+   「确认推送 `feat/20261112-001-delivery-pipeline` `<提交哈希>`」。
+4. **部署凭据**：仓库 → **Settings** → **Secrets and variables** → **Actions** →
+   **New repository secret**，按需创建 `DEPLOY_SSH_KEY` 等；值在网页中填写，**不要发到聊天里**。
+5. **测试环境**：提供完整测试环境 URL（当前 `120.26.33.211:8000` 返回 502，端口实际空闲）。
+6. **服务器项目目录确认**：`/opt/zh-ko-translate-tts` 为我选定的默认值，请确认或指定其他路径。
 7. **验收人**：指定 A10 的验收人，并在 PR 中给出明确通过结论。
