@@ -13,13 +13,12 @@ export function Header({ source, onSourceChange, onHelp }: HeaderProps) {
     <header className="fixed inset-x-0 top-0 z-40 border-b border-white/60 bg-white/70 backdrop-blur-2xl">
       <div className="mx-auto flex h-16 max-w-[1400px] items-center justify-between gap-3 px-4 sm:px-6">
         <div className="flex min-w-0 items-center gap-3">
-          <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl gradient-brand text-white shadow-glow">
+          <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-brand-600 text-white shadow-glow">
             <Languages className="h-5 w-5" />
-            <Sparkles className="absolute -right-1 -top-1 h-3 w-3 text-warn" />
           </div>
           <div className="min-w-0">
             <h1 className="truncate text-[15px] font-bold tracking-tight text-ink-900 sm:text-base">
-              中→韩 <span className="text-gradient">翻译发音台</span>
+              中→韩 翻译发音台
             </h1>
             <p className="hidden truncate text-[11px] text-ink-400 sm:block">
               中文输入 · 韩语译文 · 真实发音 · 自由调速

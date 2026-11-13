@@ -42,7 +42,7 @@ export function ResultPanel({ result, loading, error, children }: ResultPanelPro
   ];
 
   return (
-    <Card strong className="flex h-full min-h-[420px] flex-col overflow-visible">
+    <Card strong className="flex min-h-[520px] flex-col overflow-visible">
       <CardHeader
         title="韩语译文"
         subtitle="大号谚文 · 发音转写 · 音变提示"
@@ -86,10 +86,8 @@ export function ResultPanel({ result, loading, error, children }: ResultPanelPro
           </div>
         ) : (
           <div className="flex flex-1 animate-fade-up flex-col gap-4">
-            <div className="rounded-2xl border border-brand-100/80 bg-gradient-to-br from-white/90 to-brand-50/50 p-5">
-              <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-brand-500">
-                한국어 번역 · 韩语译文
-              </p>
+            <div className="rounded-2xl border border-brand-100 bg-white/90 p-5">
+              <p className="eyebrow mb-2">한국어 번역 · 韩语译文</p>
               <p
                 className="break-words text-[26px] font-bold leading-[1.55] tracking-tight text-ink-900 sm:text-[30px]"
                 lang="ko"
@@ -99,8 +97,8 @@ export function ResultPanel({ result, loading, error, children }: ResultPanelPro
             </div>
 
             {result.warning && (
-              <div className="flex items-start gap-2 rounded-xl bg-warn/10 px-3 py-2.5 text-[11px] leading-5 text-[#8A6212]">
-                <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+              <div className="flex items-start gap-2 rounded-xl border border-brand-100 bg-brand-50/70 px-3 py-2.5 text-[11px] leading-5 text-brand-800">
+                <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-500" />
                 <span>{result.warning}</span>
               </div>
             )}

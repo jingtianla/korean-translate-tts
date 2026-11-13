@@ -56,7 +56,7 @@ export function SpeechControls({
             disabled={disabled || loading}
             aria-label={playing ? "停止朗读" : "朗读译文"}
             title={playing ? "停止朗读" : "朗读译文"}
-            className="relative flex h-12 w-12 items-center justify-center rounded-full gradient-brand text-white shadow-glow transition-all hover:-translate-y-0.5 hover:shadow-float active:scale-95 disabled:cursor-not-allowed disabled:opacity-45 disabled:transform-none focus-visible:focus-ring"
+            className="relative flex h-12 w-12 items-center justify-center rounded-full bg-brand-600 text-white shadow-glow transition-all hover:-translate-y-0.5 hover:bg-brand-700 hover:shadow-float active:scale-95 disabled:cursor-not-allowed disabled:opacity-45 disabled:transform-none focus-visible:focus-ring"
           >
             {loading ? (
               <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />

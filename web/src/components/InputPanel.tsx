@@ -36,7 +36,7 @@ export function InputPanel({
   };
 
   return (
-    <Card strong className="flex h-full min-h-[420px] flex-col overflow-hidden">
+    <Card strong className="flex flex-col overflow-hidden">
       <CardHeader
         title="中文输入"
         subtitle="输入句子或段落，一键得到韩语译文"
@@ -53,14 +53,16 @@ export function InputPanel({
       />
 
       <div className="flex flex-1 flex-col gap-3 p-5">
-        <div className="group relative flex-1">
+        {/* min-h-0 必须保留：flex 子项默认 min-height:auto 无法收缩，
+            会把底部「翻译」按钮挤出卡片并被 overflow-hidden 裁掉 */}
+        <div className="group relative min-h-0 flex-1">
           <textarea
             value={value}
             onChange={(event) => onChange(event.target.value)}
             placeholder="例如：你好，很高兴认识你。今天天气真好。"
             aria-label="中文输入"
             spellCheck={false}
-            className={`h-full min-h-[240px] w-full rounded-2xl border bg-white/70 p-4 text-[15px] leading-7 text-ink-900 outline-none transition-all duration-200 placeholder:text-ink-400/70 focus:bg-white focus:ring-4 focus:ring-brand-100/70 ${
+            className={`h-full min-h-[200px] w-full resize-none rounded-2xl border bg-white/80 p-4 text-[15px] leading-7 text-ink-900 outline-none transition-all duration-200 placeholder:text-ink-400/70 focus:bg-white focus:ring-4 focus:ring-brand-100/70 ${
               tooLong
                 ? "border-danger/60 focus:border-danger"
                 : "border-brand-100 focus:border-brand-400"
@@ -94,7 +96,7 @@ export function InputPanel({
           loading={loading}
           disabled={!value.trim() || tooLong}
           onClick={onTranslate}
-          className="w-full"
+          className="w-full shrink-0"
           type="button"
         >
           {!loading && <WandSparkles className="h-4 w-4" />}

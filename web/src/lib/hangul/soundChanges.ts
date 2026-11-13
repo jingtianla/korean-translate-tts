@@ -26,41 +26,42 @@ export interface RuleNote {
   color: string;
 }
 
+// 蓝色系为主的分级色板：同色相不同明度/邻近色，保持规则间可区分且不跳出蓝调。
 export const RULE_META: Record<string, { label: string; description: string; color: string }> = {
   liaison: {
     label: "连音",
     description: "前一个字的终声辅音移到后一个元音起始字的初声位置，例如「한국어」读作「한구거」。",
-    color: "#6C5CE7",
+    color: "#2A5CC8",
   },
   nasalization: {
     label: "鼻音同化",
     description: "终声 ㄱ/ㄷ/ㅂ 遇到 ㄴ/ㅁ 时变为 ㅇ/ㄴ/ㅁ，例如「합니다」读作「함니다」。",
-    color: "#4A90D9",
+    color: "#3F78DF",
   },
   liquidization: {
     label: "流音化",
     description: "ㄴ 与 ㄹ 相邻时，ㄴ 变为 ㄹ，例如「신라」读作「실라」。",
-    color: "#2BB673",
+    color: "#4FA8D8",
   },
   tensification: {
     label: "紧音化",
     description: "终声 ㄱ/ㄷ/ㅂ 之后的平音 ㄱ/ㄷ/ㅂ/ㅅ/ㅈ 变为紧音，例如「학교」读作「학꾜」。",
-    color: "#F5A623",
+    color: "#3C8FB0",
   },
   aspiration: {
     label: "送气化",
     description: "ㅎ 与 ㄱ/ㄷ/ㅈ 相遇时合并为送气音 ㅋ/ㅌ/ㅊ，例如「좋다」读作「조타」。",
-    color: "#E5484D",
+    color: "#5B7FD1",
   },
   palatalization: {
     label: "腭化",
     description: "终声 ㄷ/ㅌ 后接 이 时，读成 지/치，例如「같이」读作「가치」。",
-    color: "#B06BE0",
+    color: "#6C9BEC",
   },
   hWeakening: {
     label: "ㅎ 弱化",
     description: "ㅎ 在元音或响音前通常不发音，例如「좋아요」读作「조아요」。",
-    color: "#7C8AA5",
+    color: "#8391A6",
   },
 };
 
