@@ -1,0 +1,22 @@
+# 生产编排：镜像必须由 Digest 固定引用（image@sha256:...），禁止只用可变标签。
+# 通过 IMAGE_REF 环境变量注入，由 deploy.sh 校验后写入 .env.deploy。
+services:
+  korean-app:
+    image: ${IMAGE_REF:?IMAGE_REF must be a digest-pinned ref (image@sha256:...)}
+    container_name: zh-ko-translate-tts
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8000}:8000"
+    environment:
+      APP_HOST: 0.0.0.0
+      APP_PORT: 8000
+      TRANSLATE_CHAIN: ${TRANSLATE_CHAIN:-argos,libre,free}
+      TTS_PROVIDER: ${TTS_PROVIDER:-edge}
+      CACHE_ENABLED: "true"
+      REQUEST_TIMEOUT: ${REQUEST_TIMEOUT:-20}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=5)"]
+      interval: 30s
+      timeout: 8s
+      start_period: 20s
+      retries: 3

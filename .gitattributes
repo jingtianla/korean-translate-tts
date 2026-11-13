@@ -1,0 +1,11 @@
+# 部署脚本必须在 Linux 服务器上以 LF 执行，避免 CRLF 导致 shebang 失效
+*.sh text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.bat text eol=crlf
+*.ps1 text eol=crlf
+
+# 二进制资源不做换行转换
+*.png binary
+*.jpg binary
+*.ico binary
