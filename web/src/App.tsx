@@ -131,32 +131,43 @@ export default function App() {
 
   return (
     <div className="relative min-h-screen">
-      <div className="aurora left-[-6rem] top-24 h-72 w-72 bg-brand-300 animate-float" />
-      <div className="aurora right-[-5rem] top-1/3 h-80 w-80 bg-sky-soft animate-float" style={{ animationDelay: "2s" }} />
+      <div className="aurora left-[-8rem] top-20 h-80 w-80 bg-brand-300 animate-float" />
+      <div className="aurora right-[-6rem] top-1/4 h-72 w-72 bg-sky-soft animate-float" style={{ animationDelay: "2s" }} />
 
       <Header source={source} onSourceChange={handleSourceChange} onHelp={() => setHelpOpen(true)} />
 
-      <main className="relative z-10 mx-auto max-w-[1400px] px-4 pb-20 pt-20 sm:px-6">
-        <section className="mb-6 flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <p className="mb-1 inline-flex items-center gap-1.5 rounded-full bg-white/70 px-3 py-1 text-[11px] font-semibold text-brand-600 shadow-sm">
+      <main className="relative z-10 mx-auto max-w-[1360px] px-4 pb-20 pt-20 sm:px-6">
+        <section className="mb-7 flex flex-wrap items-end justify-between gap-4">
+          <div className="min-w-0">
+            <p className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-brand-100 bg-white/80 px-3 py-1 text-[11px] font-semibold text-brand-700 shadow-sm">
+              <span className="h-1.5 w-1.5 rounded-full bg-brand-500" />
               面向中文母语者的韩语学习工具
             </p>
-            <h2 className="mt-2 text-[26px] font-bold leading-tight tracking-tight text-ink-900 sm:text-[34px]">
-              看懂译文，<span className="text-gradient">听懂发音</span>
+            <h2 className="text-[26px] font-bold leading-[1.2] tracking-[-0.02em] text-ink-900 sm:text-[34px]">
+              看懂译文，<span className="text-brand-600">听懂发音</span>
             </h2>
-            <p className="mt-1.5 max-w-xl text-xs leading-6 text-ink-600 sm:text-sm">
+            <p className="mt-2 max-w-xl text-xs leading-6 text-ink-600 sm:text-[13px]">
               输入中文即可得到韩语译文、真实口语罗马字与音变规则，并可自由放慢语速跟读。
             </p>
           </div>
-          <div className="hidden gap-2 text-[11px] text-ink-400 lg:flex">
-            <span className="rounded-lg bg-white/60 px-2.5 py-1.5">离线可用</span>
-            <span className="rounded-lg bg-white/60 px-2.5 py-1.5">零付费</span>
-            <span className="rounded-lg bg-white/60 px-2.5 py-1.5">自动降级</span>
+          <div className="hidden gap-2 lg:flex">
+            {[
+              { label: "离线可用", sub: "自托管翻译" },
+              { label: "零付费", sub: "无必需密钥" },
+              { label: "自动降级", sub: "多引擎兜底" },
+            ].map((item) => (
+              <div
+                key={item.label}
+                className="rounded-xl border border-white/90 bg-white/70 px-3 py-2 shadow-sm backdrop-blur-sm"
+              >
+                <p className="text-[11px] font-semibold text-ink-900">{item.label}</p>
+                <p className="mt-0.5 text-[10px] text-ink-400">{item.sub}</p>
+              </div>
+            ))}
           </div>
         </section>
 
-        <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+        <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-2">
           <InputPanel
             value={text}
             onChange={setText}

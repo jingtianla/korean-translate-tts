@@ -4,8 +4,8 @@
 
 :root {
   font-family: "Noto Sans SC", "Noto Sans KR", "Noto Sans", Pretendard, sans-serif;
-  color: #1f2430;
-  background: #f5f7ff;
+  color: #111a2e;
+  background: #f5f9ff;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -22,50 +22,60 @@ body,
   margin: 0;
 }
 
+/* 冷白到浅蓝的柔和平滑背景，不再使用高饱和紫。 */
 body {
-  background-color: #f5f7ff;
+  background-color: #f5f9ff;
   background-image:
-    radial-gradient(circle at 12% 8%, rgba(108, 92, 231, 0.16), transparent 42%),
-    radial-gradient(circle at 88% 12%, rgba(74, 144, 217, 0.15), transparent 40%),
-    radial-gradient(circle at 70% 88%, rgba(146, 122, 240, 0.11), transparent 45%),
-    linear-gradient(160deg, #f7f8ff 0%, #eef1fb 100%);
+    radial-gradient(ellipse 80% 55% at 50% -10%, rgba(63, 120, 223, 0.10), transparent 70%),
+    radial-gradient(ellipse 60% 45% at 100% 0%, rgba(79, 168, 216, 0.08), transparent 65%),
+    linear-gradient(180deg, #f8fbff 0%, #f2f7fe 45%, #eef4fd 100%);
   background-attachment: fixed;
 }
 
 ::selection {
-  background: rgba(108, 92, 231, 0.24);
+  background: rgba(63, 120, 223, 0.18);
 }
 
 @layer components {
   .glass {
-    @apply border border-white/70 bg-white/65 shadow-glass backdrop-blur-xl;
+    @apply border border-white/80 bg-white/70 shadow-card backdrop-blur-xl;
   }
 
   .glass-strong {
-    @apply border border-white/80 bg-white/85 shadow-float backdrop-blur-2xl;
+    @apply border border-white/90 bg-white/90 shadow-float backdrop-blur-2xl;
   }
 
+  /* 纯色实心蓝，替代原渐变色块 */
+  .brand-solid {
+    @apply bg-brand-600 text-white;
+  }
+
+  /* 保留类名以兼容旧引用，但改为单色，不再产生渐变 */
   .gradient-brand {
-    @apply bg-gradient-to-r from-brand-500 via-brand-400 to-sky-soft;
+    @apply bg-brand-600 text-white;
   }
 
   .text-gradient {
-    @apply bg-gradient-to-r from-brand-600 via-brand-500 to-sky-soft bg-clip-text text-transparent;
+    @apply text-brand-700;
   }
 
   .focus-ring {
-    @apply outline-none ring-2 ring-brand-300/70 ring-offset-2 ring-offset-white/60;
+    @apply outline-none ring-2 ring-brand-300/70 ring-offset-2 ring-offset-white;
+  }
+
+  .eyebrow {
+    @apply text-[11px] font-semibold uppercase tracking-[0.14em] text-brand-600;
   }
 }
 
-/* 光晕装饰 */
+/* 柔和光晕装饰（低透明度，避免视觉噪点） */
 .aurora {
   position: fixed;
   border-radius: 9999px;
-  filter: blur(68px);
+  filter: blur(90px);
   pointer-events: none;
   z-index: 0;
-  opacity: 0.5;
+  opacity: 0.35;
 }
 
 /* 语速滑块 */
@@ -76,10 +86,10 @@ input[type="range"].speed-range {
   border-radius: 9999px;
   background: linear-gradient(
     90deg,
-    #6c5ce7 0%,
-    #8d7bf1 var(--fill, 50%),
-    rgba(108, 92, 231, 0.16) var(--fill, 50%),
-    rgba(108, 92, 231, 0.16) 100%
+    #3f78df 0%,
+    #6c9bec var(--fill, 50%),
+    rgba(63, 120, 223, 0.14) var(--fill, 50%),
+    rgba(63, 120, 223, 0.14) 100%
   );
   cursor: pointer;
 }
@@ -91,13 +101,13 @@ input[type="range"].speed-range::-webkit-slider-thumb {
   height: 18px;
   border-radius: 50%;
   background: #fff;
-  border: 3px solid #6c5ce7;
-  box-shadow: 0 2px 10px rgba(108, 92, 231, 0.4);
+  border: 3px solid #2a5cc8;
+  box-shadow: 0 2px 8px rgba(42, 92, 200, 0.35);
   transition: transform 0.15s ease;
 }
 
 input[type="range"].speed-range:hover::-webkit-slider-thumb {
-  transform: scale(1.14);
+  transform: scale(1.12);
 }
 
 input[type="range"].speed-range::-moz-range-thumb {
@@ -105,8 +115,8 @@ input[type="range"].speed-range::-moz-range-thumb {
   height: 14px;
   border-radius: 50%;
   background: #fff;
-  border: 3px solid #6c5ce7;
-  box-shadow: 0 2px 10px rgba(108, 92, 231, 0.4);
+  border: 3px solid #2a5cc8;
+  box-shadow: 0 2px 8px rgba(42, 92, 200, 0.35);
 }
 
 textarea {
@@ -116,7 +126,7 @@ textarea {
 /* 细滚动条 */
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(108, 92, 231, 0.32) transparent;
+  scrollbar-color: rgba(63, 120, 223, 0.26) transparent;
 }
 
 *::-webkit-scrollbar {
@@ -125,16 +135,16 @@ textarea {
 }
 
 *::-webkit-scrollbar-thumb {
-  background: rgba(108, 92, 231, 0.28);
+  background: rgba(63, 120, 223, 0.24);
   border-radius: 9999px;
 }
 
 .skeleton {
   background: linear-gradient(
     90deg,
-    rgba(108, 92, 231, 0.08) 25%,
-    rgba(108, 92, 231, 0.18) 50%,
-    rgba(108, 92, 231, 0.08) 75%
+    rgba(63, 120, 223, 0.07) 25%,
+    rgba(63, 120, 223, 0.16) 50%,
+    rgba(63, 120, 223, 0.07) 75%
   );
   background-size: 200% 100%;
   @apply animate-shimmer;

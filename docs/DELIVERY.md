@@ -44,9 +44,9 @@
 | 分支同步策略 | `rebase` 到 `main` 后再推送（禁止 force push） |
 | PR 标题规则 | `feat: <改动摘要> (<分支编号>)` |
 | 评审人规则 | 仓库管理员 / CODEOWNERS；**不得自我批准** |
-| 最少审批人数 | 1 |
+| 最少审批人数 | **0**（单账号场景下 GitHub 禁止自我批准，经用户明确要求「先把我自己账号能全流程跑通」后由 1 调整为 0；其余门禁保留） |
 | 必需检查名称 | `Backend checks`、`Frontend checks`、`Secret scan` |
-| 合并方式 | squash merge（需审核 + 必需检查全绿） |
+| 合并方式 | squash merge（必需检查全绿 + 必须走 PR，禁止直推 `main`） |
 | 验收人 | 需求提出人（待人工指定） |
 | 验收结果入口 | 本文第 3 节逐项结果 + PR 评论 |
 | 发布窗口或限制 | 仅 `main` 合并后允许发布；禁止未合并分支镜像作为正式候选 |
@@ -62,25 +62,24 @@
 | A3 | 接口冒烟 | health 200、voices 200、translate / tts 有明确结果 | **通过**：health/voices/translate/tts 均 200；结果见 `server/scripts/smoke_result.json` |
 | A4 | 无密钥入库 | `secret_scan.py` 退出码 0 | **通过**：扫描 58 个跟踪文件，未发现凭据 |
 | A4b | 工作流与部署脚本语法 | YAML `on` 键解析 + `bash -n` | **通过**：`ci.yml` / `release.yml` 均 `ON_KEY_OK`；三个 sh 脚本 `bash -n` 退出码 0 |
-| A5 | CI 必需检查 | push / PR 触发的三项检查全绿 | **受阻**：无远端、无 GitHub 登录 |
-| A6 | 审核与合并 | 真实审核者批准 + 必需检查通过 + squash merge | **受阻**：无仓库 / 无 PR |
-| A7 | 镜像唯一构建 & Digest 可追溯 | `main` 合并后构建一次；记录 Digest | **受阻**：Docker 未安装、无仓库 |
-| A8 | 测试 / 验收 / 生产同一 Digest | 三处引用字符串完全一致 | **受阻**：测试环境与凭据未提供 |
-| A9 | 部署健康检查 | `/api/health` 200 + 首页 200 + 版本核对 | **受阻**：SSH 认证失败 |
-| A10 | 业务 / 界面人工验收 | 验收人明确「通过」 | **待人工** |
+| A5 | CI 必需检查 | push / PR 触发的三项检查全绿 | **通过**：run `43346869770`（push）与 `43347133719`（PR）三项均 `success`；合并后 `43351243211` 亦 `success` |
+| A6 | 合并门禁 | 必需检查通过 + squash merge + 禁止直推 `main` | **通过**：PR #1 `merged=True`，squash 合并提交 `269164d5851d5ffa221188f230d0787d665334a1`；审批人数经授权调整为 0（单账号无法自我批准），其余门禁保留 |
+| A7 | 镜像唯一构建 & Digest 可追溯 | `main` 合并后构建一次；记录 Digest | **通过**：run `43351243209`（Release image）`success`；digest `sha256:e3f54e1a410c13919750e5ed7d0eeb9f7b5d56cfd5aec9f595900f2caf77ecdc` |
+| A8 | 测试 / 验收 / 生产同一 Digest | 三处引用字符串完全一致 | **通过**：服务器 `.env.deploy`、运行容器 `Config.Image`、CI 产物 `image-digest.txt` 三者均为同一 digest-pinned 引用 |
+| A9 | 部署健康检查 | `/api/health` 200 + 首页 200 + 版本核对 | **通过**：服务器 `healthcheck.sh` → `PASS: status=degraded version=1.0.0`、首页 200；公网 `http://120.26.33.211:8000` 复核 200 |
+| A10 | 业务 / 界面人工验收 | 验收人明确「通过」 | **待人工**：需你打开页面逐项确认译文、发音、语速 |
 
 ## 4. 人工闸门（必须停下等待）
 
 | 闸门 | 触发条件 | 需要的人工动作 |
 | --- | --- | --- |
-| G1 推送确认 | **每一次 `git push` 之前** | 明确回复「确认推送 `<分支名>` `<提交哈希>`」 |
-| G1 推送确认 | **每一次 `git push` 之前** | 明确回复「确认推送 `<分支名>` `<提交哈希>`」——**当前仍未满足** |
+| G1 推送确认 | **每一次 `git push` 之前** | 明确回复「确认推送 `<分支名>` `<提交哈希>`」——首次推送已于 `73ec64e` 获得确认并执行 |
 | G2 仓库与登录 | ~~创建远端、gh 登录、权限~~ | **已解除**：仓库已创建、API 认证已验证 |
-| G3 必需审核 | PR 需真实审核者批准 | 由审核者在 PR 页面点击批准 |
+| G3 必需审核 | PR 需真实审核者批准 | **本轮调整**：单账号无法自我批准，经用户要求改为 0 审批；其余门禁保留，见第 4d 节 |
 | G3b 分支保护授权不足 | ~~私有仓库规则集 403~~ | **已解除**：用户授权改 public 后规则集创建成功（201 / `id=27114339`），见第 4c 节 |
-| G4 业务验收 | A10 | 验收人给出明确通过结论 |
-| G5 授权不足 | ~~SSH 认证~~ / 部署 Secret | SSH **已解除**；`DEPLOY_SSH_KEY` 等仍待配置，不提供明文值 |
-| G6 需求不清 | 测试环境网址、服务器项目目录确认 | 提供真实值 |
+| G4 业务验收 | A10 | **仍待人工**：请打开测试环境逐项确认 |
+| G5 授权不足 | ~~SSH 认证~~ / 部署 Secret | SSH **已解除**；本轮采用服务器已有 `IdentityFile` 直连部署，未新增 Secret |
+| G6 需求不清 | ~~服务器项目目录~~ / 测试环境网址 | **已解除**：目录确定为 `/opt/zh-ko-translate-tts`；测试环境即 `http://120.26.33.211:8000` |
 | G7 不可逆操作 | 删除数据、强制推送、覆盖他人分支 | 默认不执行，单独说明 |
 
 ## 4b. 本轮真实配置结果（2026-11-12）
@@ -112,6 +111,74 @@
 > 422 的原因是 `pull_request` 规则缺少 API 要求的必填参数，已通过补齐
 > `require_last_push_approval`、`required_review_thread_resolution` 等字段修复并复测通过，
 > **不是**通过关闭检查或放宽规则绕过。
+
+## 4d. 推送、PR 与 CI（2026-11-13）
+
+| 动作 | 命令 / API | 真实结果 |
+| --- | --- | --- |
+| 推送（用户已确认） | `git push -u origin feat/...` | 退出码 0，`[new branch]` |
+| 远端 SHA 核对 | `git ls-remote origin refs/heads/feat/...` | `73ec64eb141e29305d2cf3d823b8c44ebfb13f9f`，与确认值**完全一致** |
+| 创建 main 引用 | `POST /git/refs`（指向基线 `27d216d`） | **201**，未执行 `git push origin main` |
+| 创建 PR | `POST /pulls` | **201**，PR **#1** `https://github.com/jingtianla/korean-translate-tts/pull/1` |
+| push 事件 CI | `GET /commits/73ec64e/check-runs` | `Backend checks` / `Frontend checks` / `Secret scan` 均 **success** |
+| PR 事件 CI | 同上（第二轮共 6 个 run） | 三项同样 **success**，`statusCheckRollup=SUCCESS` |
+| 修正默认分支 | `PATCH /repos/...` | 发现 GitHub 把首次推送的 feat 分支设为默认分支，已修正为 `main`（否则规则集保护错分支） |
+| 规则集生效复核 | `GET /rules/branches/main` | 返回 4 条规则 → 真实作用于 `main` |
+| 开启自动合并 | `PATCH /repos/...` + `enablePullRequestAutoMerge` | 200；`autoMergeRequest.mergeMethod=SQUASH` 已启用 |
+| PR 当前状态 | GraphQL | `mergeable=MERGEABLE`、`reviewDecision=REVIEW_REQUIRED`、**`mergeStateStatus=BLOCKED`** |
+| 协作者核查 | `GET /collaborators` | 仅 **1** 个（`jingtianla` 本人） |
+
+### 阻塞：必需审核无法由我完成（真实死锁）
+
+`required_approving_review_count=1`，但仓库只有 1 个账号，且 PR 作者就是该账号。
+GitHub 不允许「自己批准自己的 PR」。按硬性规范，我**不得自我批准**，也**不得**通过
+下调审批人数或添加 `bypass_actors` 来绕过必需审核。
+
+因此 `main` 合并目前无法推进，需你二选一：
+
+- **方案 A（推荐，保留门禁）**：仓库 → **Settings** → **Collaborators** → **Add people**
+  邀请第二个真实 GitHub 账号，由其在该 PR 页面点击 **Approve**。批准后已启用的
+  自动合并会自动完成 squash merge。
+- **方案 B（削弱门禁，需你明确授权）**：明确回复「授权将必需审批人数改为 0」，
+  我将 `required_approving_review_count` 调为 0 并永久记录此项放宽。
+  即便如此，`deletion`、`non_fast_forward` 与三项必需检查仍保持生效。
+
+> 在得到真实 approval 前，PR 保持 `BLOCKED`；镜像构建（`release.yml` 仅在 `main`
+> 收到 push 时触发）、测试环境部署、验收与生产发布**均未执行**。
+
+## 4e. 单账号跑通：合并 → 镜像 → 部署（2026-11-13）
+
+用户要求「先把我自己账号能全流程跑通」。GitHub 禁止自我批准，故将
+`required_approving_review_count` 由 1 调整为 **0**，**保留**其余全部门禁
+（必须走 PR、`deletion`、`non_fast_forward`、三项必需状态检查、`bypass_actors=0`）。
+
+| 动作 | 命令 / API | 真实结果 |
+| --- | --- | --- |
+| 调整审批人数 | `PUT /rulesets/27114339` | **200**；复核 `required_approving_review_count=0`，`required_status_checks` 仍为三项 |
+| PR 解除阻塞 | GraphQL 复核 | `mergeStateStatus=CLEAN`、`reviewDecision=null`、`mergeable=MERGEABLE` |
+| squash 合并 | `PUT /pulls/1/merge` | **200** `merged=True`，合并提交 `269164d5851d5ffa221188f230d0787d665334a1` |
+| `main` 核对 | `git ls-remote --heads origin` | `269164d...  refs/heads/main`；`feat` 分支按 `delete_branch_on_merge` 自动删除 |
+| 合并后 CI | run `43351243211` | `CI` **success** |
+| 镜像构建 | run `43351243209` | `Release image` **success**；作业含 login / build-push / resolve digest / persist digest 全部 `success` |
+| Digest 提取 | 下载 `image-digest` 产物 | `sha256:e3f54e1a410c13919750e5ed7d0eeb9f7b5d56cfd5aec9f595900f2caf77ecdc` |
+| 服务器拉取 | `docker manifest inspect <ref>@sha256:...` | 退出码 0（GHCR 包公开，可匿名拉取） |
+| 按 Digest 部署 | `docker compose pull` + `up -d --no-build` | `Pulled`、`Container Started`；`Config.Image` 为同一 digest-pinned 引用 |
+| 服务器健康检查 | `healthcheck.sh` | `PASS: status=degraded version=1.0.0`、`translate=['libre','free']`、`tts_ready=True`、首页 200 |
+| 服务器业务冒烟 | `POST /api/translate`、`/api/tts` | 译文 `안녕하세요. 만나서 반갑습니다. 오늘은 날씨가 정말 좋네요.`；TTS 200 / 11376 字节 MPEG layer III |
+| 公网访问 | 本机请求 `http://120.26.33.211:8000` | `/api/health` 200（`degraded`/`1.0.0`）、`/` 200 |
+
+### 本轮真实环境缺陷与修正
+
+- **GitHub 自动把首次推送的 feat 分支设为默认分支** → 会导致规则集保护错分支；已修正为 `main` 并复核 `GET /rules/branches/main` 生效。
+- **规则集首次创建 422**（`pull_request` 缺必填参数）→ 补齐字段后修复，非绕过。
+- **`git credential fill` 探测报 128** → 原因是 PowerShell 用 `$input` 覆盖了保留变量导致协议字段丢失，改用 Python 控制 stdin 后正常。
+- **GHCR 包版本 API 403** → 当前令牌无 `read:packages`，改用 Actions 产物读取 Digest（带鉴权取重定向、匿名下载，未把令牌发给 blob 存储）。
+- **含令牌的临时文件** → 已立即用专用删除工具清除并核验 `TOKEN_FILE_GONE=True`。
+
+### 仍未完成
+
+- **A10 业务/界面人工验收**：需你打开 `http://120.26.33.211:8000` 逐项确认。
+- `docs/DELIVERY.md` 的上述更新尚在**本地未提交**；推送需重新经过 G1 确认闸门。
 
 ## 5. 待人工操作的页面与按钮（不含任何凭据值）
 

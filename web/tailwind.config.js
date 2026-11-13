@@ -6,28 +6,36 @@ export default {
   theme: {
     extend: {
       colors: {
+        // 专业蓝系：冷调、克制、有层次，避免高饱和紫。
         brand: {
-          50: "#F1EFFE",
-          100: "#E5E0FD",
-          200: "#CFC5FB",
-          300: "#AE9DF6",
-          400: "#8D7BF1",
-          500: "#6C5CE7",
-          600: "#5B4BE0",
-          700: "#4A3BC2",
-          800: "#3A2F98",
+          50: "#F1F6FE",
+          100: "#E2ECFC",
+          200: "#C6D9F9",
+          300: "#9CBDF4",
+          400: "#6C9BEC",
+          500: "#3F78DF",
+          600: "#2A5CC8",
+          700: "#2149A5",
+          800: "#1B3B84",
+          900: "#172E66",
         },
         sky: {
-          soft: "#4A90D9",
+          soft: "#4FA8D8",
         },
         ink: {
-          900: "#1F2430",
-          600: "#5B6172",
-          400: "#8C92A4",
+          900: "#111A2E",
+          700: "#2C3A52",
+          600: "#4A5A73",
+          400: "#8391A6",
         },
-        ok: "#2BB673",
-        warn: "#F5A623",
-        danger: "#E5484D",
+        surface: {
+          50: "#F7FAFF",
+          100: "#EEF4FD",
+          200: "#E3ECF9",
+        },
+        ok: "#1E9E6A",
+        warn: "#D98324",
+        danger: "#D93F45",
       },
       fontFamily: {
         sans: [
@@ -47,9 +55,10 @@ export default {
         "3xl": "1.75rem",
       },
       boxShadow: {
-        glass: "0 8px 32px rgba(76, 70, 160, 0.10)",
-        float: "0 18px 48px rgba(76, 70, 160, 0.16)",
-        glow: "0 8px 24px rgba(108, 92, 231, 0.32)",
+        glass: "0 6px 28px rgba(35, 73, 145, 0.08)",
+        float: "0 16px 44px rgba(35, 73, 145, 0.14)",
+        glow: "0 6px 20px rgba(42, 92, 200, 0.30)",
+        card: "0 1px 2px rgba(24, 43, 78, 0.04), 0 12px 32px -12px rgba(24, 43, 78, 0.12)",
       },
       keyframes: {
         "fade-up": {
